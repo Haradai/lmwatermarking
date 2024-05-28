@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Homoglyph watermarking and detection</title>
+
+    <style>
+        body {
+            text-align: center; /* Center align all text content */
+        }
+        /* Add CSS styles for hiding forms initially */
+        .form-container {
+            display: none;
+        }
+        .flagged {
+            color: blue; /* Change to whatever color you prefer */
+            font-weight: bold;
+        }
+        .boxed {
+            border: 1px solid #ccc; /* Border color */
+            padding: 10px; /* Padding inside the box */
+            width: 80%; /* Width of the box */
+            margin: 0 auto; /* Center the box horizontally */
+            box-sizing: border-box; /* Include border and padding in the width */
+        }
+        
+    </style>
+    
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="/">watermAIrk</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://github.com/andrew-nks/Creating-watermark-for-text">GitHub</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">watermAIrk, Artificial Intelligence fingerprinted!</h1>
+                <p class="lead">
+                    This web application simulates a Large Language Model that generates watermarked text as well as detect watermarks
+                    within written content.
+
+                    To test, users can prompt it for either a short text, a Word Document or a code file. Users can choose to have it generated 
+                    with or without watermarks. With the generated text, users can upload the content to detect for watermarks.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">         
+        </div>
+    </div>
+   
+    <h1>Select a Feature:</h1>
+    <button onclick="showForm('generatetext')" class="btn-danger">Generate Text</button>
+    <button onclick="showForm('detecttext')" class="btn-primary">Detection for Text</button>
+    <button onclick="showForm('generateword')" class="btn-danger">Generate Word Document</button>
+    <button onclick="showForm('detectword')" class="btn-primary">Detection for Word Document</button>
+    <button onclick="showForm('generatecode')" class="btn-danger">Generate Code file</button>
+    <button onclick="showForm('detectcode')" class="btn-primary">Detection for code file</button>
+     
+    <div id="generatetext" class="form-container">
+        <h2 style="color:red">Generate Text</h2>
+        <!--Encoding manual text input-->
+        <form id="textForm" action="/process_form" method="POST" enctype="multipart/form-data">
+            <h3 style="color: rgb(187, 47, 47)">Prompt</h3>
+            <textarea id="prompt" name="prompt" rows="2" cols="100">Explain the current approaches to mitigate the social impacts of rapidly evolving technology.
+            </textarea>
+            <br>
+            <h3 style="color: rgb(110, 4, 4)">Response without watermark </h3>
+            <textarea id="encode" name="encode" rows="10" cols="150">Mitigating the social impacts of rapidly evolving technology in today's landscape requires a multifaceted approach that encompasses ethical, regulatory, educational, collaborative, and inclusive initiatives. Firstly, ethical frameworks serve as guiding principles for technological development. These frameworks, such as the IEEE Code of Ethics or the principles outlined in the Universal Declaration of Ethical Principles for AI, emphasize values like fairness, transparency, accountability, and respect for human rights. By adhering to these principles, developers and innovators aim to ensure that technology serves societal interests and promotes human well-being.
+    Secondly, regulatory mechanisms play a crucial role in safeguarding individuals and communities from potential harms associated with technology. Governments and regulatory bodies enact laws and regulations to protect privacy, prevent discrimination, ensure safety, and promote responsible use of emerging technologies. For instance, regulations like the General Data Protection Regulation (GDPR) in Europe and the California Consumer Privacy Act (CCPA) in the United States set standards for data protection and privacy rights.
+    Education is another essential component of mitigating social impacts. Digital literacy programs and educational initiatives aim to equip individuals with the knowledge and skills needed to understand, critically evaluate, and responsibly engage with technology. By promoting digital literacy, society can empower individuals to make informed decisions, protect themselves from online threats, and participate meaningfully in the digital world.
+    Collaboration is key to addressing complex challenges posed by rapid technological advancements. Governments, industry stakeholders, civil society organizations, and academia collaborate to identify emerging issues, share best practices, and develop consensus on ethical standards, policies, and regulations. Multistakeholder forums, such as the Partnership on AI or the World Economic Forum's Centre for the Fourth Industrial Revolution, facilitate dialogue and cooperation on technology-related issues.
+    Furthermore, initiatives promoting diversity, equity, and inclusion in the tech sector are essential for ensuring that technology benefits all segments of society equitably. By addressing biases, promoting diversity in tech teams, and fostering inclusive innovation ecosystems, these initiatives strive to create technology that reflects the needs and values of diverse communities.
+    In conclusion, addressing the social impacts of rapidly evolving technology requires a comprehensive and collaborative approach that integrates ethical considerations, regulatory measures, educational efforts, and inclusive practices. By working together across sectors and prioritizing the well-being of individuals and communities, we can harness the potential of technology to create a more equitable and sustainable future.
+            </textarea>
+            <br>
+            <input type="submit" class="btn btn-danger btn-sm" value="Submit">
+            <input type="button" name= "reset1" value="Reset" onclick="resetForm()">
+            <br>
+            <br>
+            <h3 style="color: rgb(110, 4, 4)"><strong>Response with watermark </strong></h3>
+            
+            {% if encoded_output %}            
+            <textarea id="result" name="result" rows="10" cols="150">{{ encoded_output }}</textarea>
+            <p name="proportion"><strong>This is the proportion of encoding:</strong> <span style="color: red; font-weight: bold;">{{ proportion_of_encoding }}</span></p>
+            <p name="characters"><strong>These are the characters encoded:</strong> <span style="color: red; font-weight: bold;">{{ encoded_characters }}</span></p>
+            <p name="whitespaces"><strong>This is the proportion of whitespaces:</strong> <span style="color: red; font-weight: bold;">{{ whitespace_characters }}</span></p>
+            {% endif %}
+
+        </form>
+    </div>
+        <br>
+    <div id="generateword" class="form-container">
+        <!--Encoding text file-->
+        <form id="textUploadForm" action="/upload_text" method="POST" enctype="multipart/form-data">    
+            <h3 style="color: red">Generate Word Document:</h3>               
+            
+            <h3 style="color: rgb(187, 47, 47)">Prompt</h3>
+            <textarea id="prompt" name="prompt" rows="2" cols="100">Explain the relevance of ancient Athenian politics in today's political landscape. Give me a word document in an academic style, with citations.
+            </textarea>
+            <br>
+            <br>
+            File without watermarks: <input type="file" name="file"><br>
+            <input type="submit" class="btn btn-danger btn-sm" value="Download encoded text file">
+            <br>
+            <br>
+
+        </form>
+    </div>
+
+    <div id="generatecode" class="form-container">
+        <!--Encoding code file-->
+        <form id="codeUploadForm" action="/upload_code" method="POST" enctype="multipart/form-data">
+            <h3 style="color: red">Generate code file:</h3>
+            <h3 style="color: rgb(187, 47, 47)">Prompt</h3>
+            <textarea id="prompt" name="prompt" rows="2" cols="100">Create a function in python that determines the median value at any point in time for a continuous data stream
+            </textarea>
+            <br>
+            <br>
+
+            File without watermarks: <input type="file" name="code_file"><br>
+            <input type="submit" class="btn btn-danger btn-sm" value="Download encoded code file">
+            <br>
+            <br>
+            <br>
+        </form>
+    
+    </div>
+
+    <div id="detecttext" class="form-container">
+
+            <h2 style="color: blue">Detection</h2>
+        <!--Detecting watermarks in manual text-->
+        <form id="detectText" action="/detect_text" method="POST" enctype="multipart/form-data">   
+            <h3 style="color: navy">Paste text to be evaluated for watermarks</h3>
+            <textarea id="detect" name="detect" rows="10" cols="100">Enter your text here</textarea>
+            <br>
+            <input type="submit" class="btn btn-primary btn-sm" value="Detect Homoglyphs">
+            <input type="button" name="reset2" value="Reset" onclick="resetForm()">
+            <br>
+
+            {% if homoglyph_proportion %}
+            <!-- <textarea id="result" name="result" rows="10" cols="100">{{text_input_with_flags | safe }}</textarea> -->
+            <div class="boxed"><p>{{text_input_with_flags | safe }}</p></div>
+            <p name = "proportion1"><strong>This is the proportion of encoding: </strong><span style="color: blue; font-weight: bold;">{{homoglyph_proportion}}</span></p>
+            <p name = "proportion1"><strong>This are the characters encoded: </strong><span style="color: blue; font-weight: bold;">{{homoglyph_list}}</span></p>
+            <p name= "whitespaces1"><strong>This is the proportion of whitespaces:</strong><span style="color: blue; font-weight: bold;">{{whitespace_proportion}}</span> </p>
+            
+            {%  endif %}
+
+
+        </form>
+    </div>
+        <br>
+    <div id="detectword" class="form-container">
+        <!--Detecting watermarks in text file-->
+        <form id="detectTextFile" action="/detect_textfile" method="POST" enctype="multipart/form-data">
+            <h3 style="color: navy">Input text file to detect watermarks:</h3>               
+            File input: <input type="file" name="text_file_detect"><br>
+            <input type="submit" class="btn btn-primary btn-sm" value="Evaluate text file">
+            <br>
+            <br>
+        
+            {% if proportion_of_homoglyphs %}
+            <p name = "proportion_homoglyphs"><strong>This is the proportion of encoding:</strong><span style="color: blue; font-weight: bold;">{{proportion_of_homoglyphs}}</span></p>
+            <p name= "whitespaces"><strong>This is the proportion of whitespaces:</strong><span style="color: blue; font-weight: bold;">{{proportion_of_whitespaces}}</span> </p>
+            
+            {%  endif %}
+        </form>
+    </div>
+
+    <div id="detectcode" class="form-container">
+        <!--Detecting watermarks in code file-->
+        <form id="detectCodeFile" action="/detect_codefile" method="POST" enctype="multipart/form-data">
+            <h3 style="color: navy">Input code file to detect watermarks:</h3>               
+            File input: <input type="file" name="code_file_detect"><br>
+            <input type="submit" class="btn btn-primary btn-sm" value="Evaluate code file">
+            <br>
+            <br>
+
+            {% if proportion_of_homoglyphs_code %}
+            <p name = "proportion_homoglyphs_code"><strong>This is the proportion of encoding:</strong><span style="color: blue; font-weight: bold;">{{proportion_of_homoglyphs_code}}</span> </p>
+            <p name= "whitespaces_code"><strong>This is the proportion of whitespaces:</strong><span style="color: blue; font-weight: bold;">{{proportion_of_whitespaces_code}}</span> </p>
+            
+            {%  endif %}
+        </form>
+    
+        
+    </div>
+    
+    <script>
+    function resetForm() {
+        var resultTextArea = document.getElementById("result");
+        var resultProportion = document.getElementById("proportion");
+        var resultCharacters = document.getElementById("characters");
+        var resultWhitespaces = document.getElementById("whitespaces");
+        if (resultTextArea) {
+            resultTextArea.parentNode.removeChild(resultTextArea);
+        }
+        if (resultProportion) {
+            resultProportion.parentNode.removeChild(resultTextArea);
+        }
+        if (resultCharacters) {
+            resultCharacters.parentNode.removeChild(resultTextArea);
+        }
+        if (resultWhitespaces) {
+            resultWhitespaces.parentNode.removeChild(resultTextArea);
+        }
+        document.getElementById("myForm").reset();
+    }
+
+    function showForm(formId) {
+            // Hide all forms first
+            var forms = document.getElementsByClassName('form-container');
+            for (var i = 0; i < forms.length; i++) {
+                forms[i].style.display = 'none';
+            }
+            // Show the selected form
+            document.getElementById(formId).style.display = 'block';
+        }
+    </script>
+</body>
+</html>

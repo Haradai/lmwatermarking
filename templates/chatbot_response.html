@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>ChatBot Response</title>
+    <style>
+        body { text-align: center; }
+        .flagged { color: blue; font-weight: bold; }
+        .boxed { border: 1px solid #ccc; padding: 10px; width: 80%; margin: 0 auto; box-sizing: border-box; }
+        .navbar-custom { background-color: rgb(184, 201, 0); }
+        .navbar-custom .navbar-brand, .navbar-custom .nav-link { color: black; }
+        .btn-custom { background-color: rgb(184, 201, 0); color: black; }
+        textarea { width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="/">WaterLemon</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://github.com/andrew-nks/Creating-watermark-for-text">GitHub</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">ChatBot Response</h1>
+                <div class="boxed">
+                    <h3 style="color: rgb(184, 201, 0);"><strong>ChatBot Response:</strong></h3>
+                    <textarea id="chatbotResult" name="chatbotResult" rows="10" readonly>{{ chatbot_response }}</textarea>
+                </div>
+                <br>
+                <a href="/" class="btn btn-custom">Back to Home</a>
+            </div>
+        </div>
+    </div>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">Watermarked ChatBot Response</h1>
+                <div class="boxed">
+                    <h3 style="color: rgb(184, 201, 0);"><strong>Watermarked ChatBot Response:</strong></h3>
+                    <textarea id="chatbotResult" name="chatbotResult" rows="10" readonly>{{ chatbot_response_watermarked }}</textarea>
+                </div>
+                <br>
+                <a href="/" class="btn btn-custom">Back to Home</a>
+            </div>
+        </div>
+    </div>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Disclaimer:</strong> We use a LLM to replicate the text you input and modify it to be detectable. Bear in mind that our goal is to offer text with maximum quality, but we cannot ensure to maintain the correctness and veracity of the original text.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

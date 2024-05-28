@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Homoglyph watermarking and detection</title>
+
+    <style>
+        body {
+            text-align: center;
+        }
+        .form-container {
+            display: none;
+        }
+        .flagged {
+            color: blue;
+            font-weight: bold;
+        }
+        .boxed {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 80%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .navbar-custom {
+            background-color: rgb(184, 201, 0);
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: black;
+        }
+        .btn-custom {
+            background-color: rgb(184, 201, 0);
+            color: black;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="/">WaterLemon</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://github.com/andrew-nks/Creating-watermark-for-text">GitHub</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">WaterLemon: a multi-approach text watermark</h1>
+                <p class="lead">
+                    Use this application to generate or rewrite text with a watermark, and to detect if a text has been watermarked.
+                </p>
+                <p class="lead">
+                    Our system adds two layers of watermark: green/red list and homoglyphs. See more on our documentation.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">         
+        </div>
+    </div>
+   
+    <h1>Select a Feature:</h1>
+    <button onclick="showForm('chatbot')" class="btn btn-custom">Watermarked ChatBot</button>
+    <button onclick="showForm('text2text')" class="btn btn-danger">Text2text Watermark</button>
+    <button onclick="showForm('detecttext')" class="btn btn-primary">Detection</button>
+     
+    <div id="chatbot" class="form-container">
+        <h2 style="color: rgb(184, 201, 0);">Watermarked ChatBot</h2>
+        <form id="chatbotForm" action="/chatbot" method="POST" enctype="multipart/form-data">
+            <h3 style="color: rgb(184, 201, 0);">Input your prompt:</h3>
+            <textarea id="chatbotInput" name="chatbotInput" rows="10" cols="150">Enter your prompt here...</textarea>
+            <br>
+            <input type="submit" class="btn btn-custom btn-sm" value="Submit">
+            <input type="button" name="resetChatbot" value="Reset" onclick="resetForm()">
+            <br><br>
+            {% if chatbot_response %}
+            <h3 style="color: rgb(184, 201, 0);"><strong>ChatBot Response:</strong></h3>
+            <textarea id="chatbotResult" name="chatbotResult" rows="10" cols="150">{{ chatbot_response }}</textarea>
+            {% endif %}
+        </form>
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Disclaimer:</strong> We use a LLM to replicate the text you input and modify it to be detectable. Bear in mind that our goal is to offer text with maximum quality, but we cannot ensure to maintain the correctness and veracity of the original text.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="text2text" class="form-container">
+        <h2 style="color:red">Text2text Watermark</h2>
+        <form id="text2textForm" method="POST" enctype="multipart/form-data" onsubmit="setFormAction(event)">
+            <br>
+            <h3 style="color: red">Input non-watermarked text: </h3>
+            <textarea id="encode" name="encode" rows="10" cols="150">Here is some example text:
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </textarea>
+            <br>
+            <input type="submit" class="btn btn-danger btn-sm" name="action" value="Homoglyph">
+            <input type="submit" class="btn btn-danger btn-sm" name="action" value="T5_text2text">
+            <input type="button" name="reset1" value="Reset" onclick="resetForm()">
+            <br>
+            <br>
+            <h3 style="color: red"><strong>Watermarked text </strong></h3>
+            
+            {% if encoded_output %}            
+            <textarea id="result" name="result" rows="10" cols="150">{{ encoded_output }}</textarea>
+            <p name="proportion"><strong>This is the proportion of encoding:</strong> <span style="color: red; font-weight: bold;">{{ proportion_of_encoding }}</span></p>
+            <p name="characters"><strong>These are the characters encoded:</strong> <span style="color: red; font-weight: bold;">{{ encoded_characters }}</span></p>
+            <p name="whitespaces"><strong>This is the proportion of whitespaces:</strong> <span style="color: red; font-weight: bold;">{{ whitespace_characters }}</span></p>
+            {% endif %}
+
+        </form>
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Disclaimer:</strong> We use a LLM to replicate the text you input and modify it to be detectable. Bear in mind that our goal is to offer text with maximum quality, but we cannot ensure to maintain the correctness and veracity of the original text.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detecttext" class="form-container">
+        <h2 style="color: blue">Detection</h2>
+        <form id="detectText" action="/detect_text" method="POST" enctype="multipart/form-data">   
+            <h3 style="color: navy">Paste text to be evaluated for watermarks</h3>
+            <textarea id="detect" name="detect" rows="10" cols="100">Enter your text here</textarea>
+            <br>
+            <input type="submit" class="btn btn-primary btn-sm" value="Detect">
+            <input type="button" name="reset2" value="Reset" onclick="resetForm()">
+            <br>
+
+            {% if homoglyph_proportion %}
+            <div class="boxed"><p>{{text_input_with_flags | safe }}</p></div>
+            <p name = "proportion1"><strong>This is the proportion of encoding: </strong><span style="color: blue; font-weight: bold;">{{homoglyph_proportion}}</span></p>
+            <p name = "proportion1"><strong>This are the characters encoded: </strong><span style="color: blue; font-weight: bold;">{{homoglyph_list}}</span></p>
+            <p name= "whitespaces1"><strong>This is the proportion of whitespaces:</strong><span style="color: blue; font-weight: bold;">{{whitespace_proportion}}</span> </p>
+            <p name = "num_tokens"><strong>Number of tokens scored: </strong><span style="color: blue; font-weight: bold;">{{num_tokens}}</span></p>
+            <p name = "num_green_tokens"><strong>Number of green list tokens: </strong><span style="color: blue; font-weight: bold;">{{num_green_tokens}}</span></p>
+            <p name= "green_fraction"><strong>Green fraction:</strong><span style="color: blue; font-weight: bold;">{{green_fraction}}</span> </p>
+            <p name= "zscore"><strong>Z-score:</strong><span style="color: blue; font-weight: bold;">{{z_score}}</span> </p>
+            <p name= "prediction"><strong>Prediction:</strong><span style="color: blue; font-weight: bold;">{{prediction}}</span> </p>
+            {%  endif %}
+        </form>
+    </div>
+
+    <script>
+        function resetForm() {
+            document.getElementById("text2textForm").reset();
+            document.getElementById("detectText").reset();
+            document.getElementById("chatbotForm").reset();
+            var resultTextArea = document.getElementById("result");
+            if (resultTextArea) {
+                resultTextArea.parentNode.removeChild(resultTextArea);
+            }
+            var resultProportion = document.getElementById("proportion");
+            if (resultProportion) {
+                resultProportion.parentNode.removeChild(resultProportion);
+            }
+            var resultCharacters = document.getElementById("characters");
+            if (resultCharacters) {
+                resultCharacters.parentNode.removeChild(resultCharacters);
+            }
+            var resultWhitespaces = document.getElementById("whitespaces");
+            if (resultWhitespaces) {
+                resultWhitespaces.parentNode.removeChild(resultWhitespaces);
+            }
+        }
+
+        function showForm(formId) {
+            var forms = document.getElementsByClassName('form-container');
+            for (var i = 0; i < forms.length; i++) {
+                forms[i].style.display = 'none';
+            }
+            document.getElementById(formId).style.display = 'block';
+        }
+
+        function setFormAction(event) {
+            var form = document.getElementById('text2textForm');
+            var action = event.submitter.value;
+            if (action === 'Homoglyph') {
+                form.action = '/process_homoglyph';
+            } else if (action === 'T5_text2text') {
+                form.action = '/process_t5';
+            }
+        }
+    </script>
+</body>
+</html>

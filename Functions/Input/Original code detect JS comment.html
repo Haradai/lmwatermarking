@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Find Median in continuous data stream</title>
+
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>My Webpage</title>
+    
+    
+</head>
+
+<body>
+  <header>
+    <h1>Welcome to My Webpage</h1>
+</header>
+
+
+<nav>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Contact</a>
+</nav>
+
+
+<main>
+    <h2>About Us</h2>
+    <p>This is a simple webpage created using HTML and CSS.</p>
+    <p>Feel free to explore the links in the navigation bar above.</p>
+</main>
+
+
+<footer>
+    <p>&copy; 2024 My Webpage. All rights reserved.</p>
+</footer>
+
+
+
+
+	<script>
+		
+        class MedianFinder {
+  constructor() {
+    this.minHeap = []; // Min heap for larger half
+    this.maxHeap = []; // Max heap for smaller half
+  }
+
+  addNum(num) {
+    if (this.maxHeap.length === 0 || num <= -this.maxHeap[0]) {
+      this.maxHeap.push(-num);
+      this.heapifyUpMax(this.maxHeap);
+    } else {
+      this.minHeap.push(num);
+      this.heapifyUpMin(this.minHeap);
+    }
+
+    // Balance the heaps if necessary
+    if (this.maxHeap.length > this.minHeap.length + 1) {
+      this.minHeap.push(-this.maxHeap[0]);
+      this.heapifyUpMin(this.minHeap);
+      this.maxHeap[0] = -this.maxHeap.pop();
+      this.heapifyDownMax(this.maxHeap);
+    } else if (this.minHeap.length > this.maxHeap.length) {
+      this.maxHeap.push(-this.minHeap[0]);
+      this.heapifyUpMax(this.maxHeap);
+      this.minHeap[0] = this.minHeap.pop();
+      this.heapifyDownMin(this.minHeap);
+    }
+  }
+
+  findMedian() {
+    if (this.maxHeap.length === this.minHeap.length) {
+      return (-this.maxHeap[0] + this.minHeap[0]) / 2;
+    } else {
+      return -this.maxHeap[0];
+    }
+  }
+
+  heapifyUpMax(heap) {
+    let index = heap.length - 1;
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      if (heap[parentIndex] < heap[index]) {
+        [heap[parentIndex], heap[index]] = [heap[index], heap[parentIndex]];
+        index = parentIndex;
+      } else {
+        break;
+      }
+    }
+  }
+
+  heapifyUpMin(heap) {
+    let index = heap.length - 1;
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      if (heap[parentIndex] > heap[index]) {
+        [heap[parentIndex], heap[index]] = [heap[index], heap[parentIndex]];
+        index = parentIndex;
+      } else {
+        break;
+      }
+    }
+  }
+
+  heapifyDownMax(heap) {
+    let index = 0;
+    const length = heap.length;
+    while (true) {
+      const leftChildIndex = 2 * index + 1;
+      const rightChildIndex = 2 * index + 2;
+      let largestIndex = index;
+      if (leftChildIndex < length && heap[leftChildIndex] > heap[largestIndex]) {
+        largestIndex = leftChildIndex;
+      }
+      if (rightChildIndex < length && heap[rightChildIndex] > heap[largestIndex]) {
+        largestIndex = rightChildIndex;
+      }
+      if (largestIndex !== index) {
+        [heap[index], heap[largestIndex]] = [heap[largestIndex], heap[index]];
+        index = largestIndex;
+      } else {
+        break;
+      }
+    }
+  }
+
+  heapifyDownMin(heap) {
+    let index = 0;
+    const length = heap.length;
+    while (true) {
+      const leftChildIndex = 2 * index + 1;
+      const rightChildIndex = 2 * index + 2;
+      let smallestIndex = index;
+      if (leftChildIndex < length && heap[leftChildIndex] < heap[smallestIndex]) {
+        smallestIndex = leftChildIndex;
+      }
+      if (rightChildIndex < length && heap[rightChildIndex] < heap[smallestIndex]) {
+        smallestIndex = rightChildIndex;
+      }
+      if (smallestIndex !== index) {
+        [heap[index], heap[smallestIndex]] = [heap[smallestIndex], heap[index]];
+        index = smallestIndex;
+      } else {
+        break;
+      }
+    }
+  }
+}
+
+// Example usage:
+const medianFinder = new MedianFinder();
+const trafficData = [100, 200, 150, 300, 250, 400, 350];
+
+for (const dataPoint of trafficData) {
+  medianFinder.addNum(dataPoint);
+  console.log("Median so far:", medianFinder.findMedian());
+}
+
+
+	</script>
+</body>
+
+</html>
