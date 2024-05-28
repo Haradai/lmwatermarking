@@ -30,7 +30,8 @@ llm_model.eval()
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 t5_tokenizer = AutoTokenizer.from_pretrained("google-t5/t5-small")
-t5_model = AutoModelForSeq2SeqLM.from_pretrained("t5_txt2txt_checkpoint")
+# t5_model = AutoModelForSeq2SeqLM.from_pretrained("t5_txt2txt_checkpoint")
+t5_model = AutoModelForSeq2SeqLM.from_pretrained("google-t5/t5-small")
 
 ##Watermark processor and detector
 from extended_watermark_processor import WatermarkLogitsProcessor
@@ -227,7 +228,8 @@ def detect_text():
                            num_green_tokens = score_dict["num_green_tokens"],
                            green_fraction = round(score_dict["green_fraction"],2),
                            z_score = round(score_dict["z_score"],2),
-                           prediction = score_dict["prediction"]
+                           prediction = score_dict["prediction"],
+                           confidence = score_dict["confidence"]
                            ) 
 
 # Detecting watermarks in text file uploaded
