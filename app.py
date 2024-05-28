@@ -24,13 +24,13 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, LogitsProcessorLis
 import torch
 
 device = torch.device("cpu")
-llm_tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-llm_model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+llm_tokenizer = AutoTokenizer.from_pretrained("google/gemma-2b-it")
+llm_model = AutoModelForCausalLM.from_pretrained("google/gemma-2b-it", torch_dtype=torch.bfloat16)
 llm_model.eval()
 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-t5_tokenizer = AutoTokenizer.from_pretrained("google/mt5-base")
-t5_model = AutoModelForSeq2SeqLM.from_pretrained("t5_txt2txt_checkpoint")
+# from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+# t5_tokenizer = AutoTokenizer.from_pretrained("google/mt5-base")
+# t5_model = AutoModelForSeq2SeqLM.from_pretrained("t5_txt2txt_checkpoint")
 
 ##Watermark processor and detector
 from extended_watermark_processor import WatermarkLogitsProcessor
@@ -62,14 +62,33 @@ def about():
 def chatbot():
     user_input = request.form['chatbotInput']
 
-    to_chatbot_input = f'''
-    <|system|>
-    You are a friendly chatbot who always responds in the style of a pirate. Your responses are a paragraph long.</s>
-    <|user|>
-    {user_input}</s>
-    <|assistant|>'''
-    
-    tokenized_input = llm_tokenizer(to_chatbot_input, return_tensors='pt').to(llm_model.device)
+    # to_chatbot_input = f'''
+    # <|system|>
+    # You are a friendly chatbot. Your responses are a paragraph long.</s>
+    # <|user|>
+    # {user_input}</s>
+    # <|assistant|>'''
+    print("Processing the prompt:")
+    chat = [ { "role": "user", "content": user_input },]
+
+    prompt = llm_tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
+    inputs = llm_tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
+    print("It's encoded")
+    # Watermarked
+    outputs = llm_model.generate(input_ids=inputs.to(llm_model.device),
+                             logits_processor=LogitsProcessorList([watermark_processor]),
+                             max_new_tokens=150)
+    wm_output_text = llm_tokenizer.decode(outputs[0])
+
+    # Non-watermarked
+    outputs = llm_model.generate(input_ids=inputs.to(llm_model.device),
+                             max_new_tokens=150)
+    output_text = llm_tokenizer.decode(outputs[0])
+
+    print("Answer generated! (both wm and nwm)")
+
+    '''
+    tokenized_input = llm_tokenizer(chat, return_tensors='pt').to(llm_model.device)
 
     ##watermarked
     output_tokens = llm_model.generate(**tokenized_input,
@@ -84,7 +103,7 @@ def chatbot():
     output_tokens = llm_model.generate(**tokenized_input,max_new_tokens=100)
     output_tokens = output_tokens[:,tokenized_input["input_ids"].shape[-1]:]
     output_text = llm_tokenizer.batch_decode(output_tokens, skip_special_tokens=True)[0]
-    
+    '''
     return render_template('chatbot_response.html', chatbot_response=output_text, chatbot_response_watermarked=wm_output_text)
 
 
