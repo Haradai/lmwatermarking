@@ -29,7 +29,7 @@ llm_model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-
 llm_model.eval()
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-t5_tokenizer = AutoTokenizer.from_pretrained("google/mt5-base")
+t5_tokenizer = AutoTokenizer.from_pretrained("google-t5/t5-small")
 t5_model = AutoModelForSeq2SeqLM.from_pretrained("t5_txt2txt_checkpoint")
 
 ##Watermark processor and detector
@@ -39,14 +39,19 @@ watermark_processor = WatermarkLogitsProcessor(vocab=list(llm_tokenizer.get_voca
                                                delta=2.3,
                                                seeding_scheme="selfhash")
 
+t5_watermark_processor = WatermarkLogitsProcessor(vocab=list(llm_tokenizer.get_vocab().values()),
+                                               gamma=0.4,
+                                               delta=50,
+                                               seeding_scheme="selfhash")
+
 
 from extended_watermark_processor import WatermarkDetector
 watermark_detector = WatermarkDetector(vocab=list(llm_tokenizer.get_vocab().values()),
-                                        gamma=0.25, # should match original setting
+                                        gamma=0.4, # should match original setting
                                         seeding_scheme="selfhash", # should match original setting
                                         device=llm_model.device, # must match the original rng device type
                                         tokenizer=llm_tokenizer,
-                                        z_threshold=4.0,
+                                        z_threshold=2.0,
                                         normalizers=[],
                                         ignore_repeated_ngrams=True)
 
@@ -104,21 +109,40 @@ def process_homoglyph():
                            encoded_characters = encoded_characters,
                            whitespace_characters = whitespace_characters)
 
+
+def t5_generate(model,input_ids:torch.tensor, attention_mask:torch.tensor, watermark_processor=None) -> str:
+    model.eval()
+    n_tokens_in = torch.sum(attention_mask).item()
+    
+    decoder_input_ids = torch.tensor([[0,0,0,0,0]]).to(model.device)
+    for _ in range(n_tokens_in):
+
+        #with and without watermark
+        if watermark_processor:
+            out = model.generate(input_ids = input_ids,attention_mask=attention_mask, decoder_input_ids = decoder_input_ids, 
+                                max_new_tokens=1,
+                                logits_processor=LogitsProcessorList([t5_watermark_processor]))
+        else:
+            out = model.generate(input_ids = input_ids,attention_mask=attention_mask, decoder_input_ids = decoder_input_ids, 
+                                max_new_tokens=1)
+        
+        decoder_input_ids = out
+    
+    #return new text
+    return t5_tokenizer.decode(decoder_input_ids[0])
+
 # Encoding text manually typed in the box
 @app.route('/process_t5', methods=['POST'])
 def process_t5():
     original_text_input = request.form['encode']
     
-    encoded_output = text_encoder(original_text_input)[0]
-    proportion_of_encoding = text_encoder(original_text_input)[1]
-    encoded_characters = text_encoder(original_text_input)[2]
-    whitespace_characters = text_encoder(original_text_input)[3]
+    tokenized_input = t5_tokenizer(original_text_input, return_tensors='pt').to(t5_model.device)
+
+    ##watermarked
+    output_text = t5_generate(t5_model,tokenized_input["input_ids"],tokenized_input["attention_mask"], watermark_processor)
     
     # Encoding and returning the details of homoglyphs
-    return render_template(use_form, encoded_output=encoded_output, 
-                           proportion_of_encoding = proportion_of_encoding,
-                           encoded_characters = encoded_characters,
-                           whitespace_characters = whitespace_characters)
+    return render_template(use_form, encoded_output=output_text)
 
 # Encoding text file
 @app.route('/upload_text', methods=['POST'])
