@@ -72,7 +72,7 @@ def chatbot():
 
     to_chatbot_input = f'''
     <|system|>
-    You are a friendly chatbot who always responds in the style of a pirate. Your responses are a paragraph long.</s>
+    You are a friendly and useful chatbot. Your responses are a paragraph long.</s>
     <|user|>
     {user_input}</s>
     <|assistant|>'''
@@ -234,7 +234,7 @@ def detect_text():
             if homo_text[i] in list(homo2normal.keys()):
                 homo_text[i] = homo2normal[homo_text[i]]
 
-    encoded_text_input = ''.join(homo_text)   
+        encoded_text_input = ''.join(homo_text)   
 
     score_dict = watermark_detector.detect(encoded_text_input) # or any other text of interest to analyze
     
