@@ -20,15 +20,15 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 ###LLMs loading
-from transformers import AutoTokenizer, AutoModelForCausalLM, LogitsProcessorList
-import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, LogitsProcessorList # type: ignore
+import torch # type: ignore
 
 device = torch.device("cpu")
 llm_tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 llm_model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 llm_model.eval()
 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM # type: ignore
 t5_tokenizer = AutoTokenizer.from_pretrained("google-t5/t5-small")
 # t5_model = AutoModelForSeq2SeqLM.from_pretrained("t5_txt2txt_checkpoint")
 t5_model = AutoModelForSeq2SeqLM.from_pretrained("google-t5/t5-small")
@@ -66,6 +66,8 @@ def about():
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
+    add_homoglyphs = False
+    
     user_input = request.form['chatbotInput']
 
     to_chatbot_input = f'''
@@ -90,6 +92,9 @@ def chatbot():
     output_tokens = llm_model.generate(**tokenized_input,max_new_tokens=100)
     output_tokens = output_tokens[:,tokenized_input["input_ids"].shape[-1]:]
     output_text = llm_tokenizer.batch_decode(output_tokens, skip_special_tokens=True)[0]
+
+    if add_homoglyphs:
+        wm_output_text = text_encoder(wm_output_text)[0]
     
     return render_template('chatbot_response.html', chatbot_response=output_text, chatbot_response_watermarked=wm_output_text)
 
@@ -183,7 +188,6 @@ def upload_code_file():
         return "No file part"
     
     file = request.files['code_file']
-    
 
     if file.filename == '':
         return "No selected file"
@@ -217,7 +221,20 @@ def detect_text():
     whitespace_proportion = homoglyph_detection(encoded_text_input)[1]
     homoglyph_list = homoglyph_detection(encoded_text_input)[2]
     
+    # After they have been detected, remove the homoglyphs for the other watermark detector
+    homoglyphs = list("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ")
+    normal_characters = list("AaBegiKIMNnOPpqSsTuWwYy,;:!")
+    homo2normal = {homo:normal for homo, normal in zip(homoglyphs, normal_characters)}
+
+    # homo_text = list(encoded_text_input)
+    # for i in range(len(homo_text)):
+    #     if homo_text[i] in list(homo2normal.keys()):
+    #         homo_text[i] = homo2normal[homo_text[i]]
+
+    # encoded_text_input = ''.join(homo_text)   
+
     score_dict = watermark_detector.detect(encoded_text_input) # or any other text of interest to analyze
+    
     if score_dict['prediction'] == False:
         score_dict['confidence'] = 0
 
