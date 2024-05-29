@@ -3,8 +3,8 @@ def text_encoder(original_text_input):
     encoded_text = []
     for char in original_text_input:
         # encoding
-        ref_dict = {char: index for index, char in enumerate("AaBegiKIMNnOPpqSsTUWwYy,;:!'")}
-        encoding_dict = {char: index for index, char in enumerate("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ")}
+        ref_dict = {char: index for index, char in enumerate("AaBegiKIMNnOPpqSsTUWwYyZ,;:!'")}
+        encoding_dict = {char: index for index, char in enumerate("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ")}
                  
         invert_ref_dict = {value: key for key, value in ref_dict.items()}
         invert_encoding_dict = {value: key for key, value in encoding_dict.items()}

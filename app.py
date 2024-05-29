@@ -224,8 +224,8 @@ def detect_text():
     homoglyph_list = homoglyph_detection(encoded_text_input)[2]
     
     # After they have been detected, remove the homoglyphs for the other watermark detector
-    homoglyphs = list("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ")
-    normal_characters = list("AaBegiKIMNnOPpqSsTuWwYy,;:!")
+    homoglyphs = list("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ")
+    normal_characters = list("AaBegiKIMNnOPpqSsTuWwYyZ,;:!")
     homo2normal = {homo:normal for homo, normal in zip(homoglyphs, normal_characters)}
 
     if remove_homoglyphs:

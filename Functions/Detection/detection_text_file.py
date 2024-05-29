@@ -18,7 +18,7 @@ def read_encoded_characters_from_word_file_with_paragraphs(file_path, output_pat
     word_count = 0
 
     # homoglyphs
-    homoglyphs = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ"
+    homoglyphs = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ"
 
     # Initialize an empty list to store the words
     words = []
