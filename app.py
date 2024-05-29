@@ -66,7 +66,7 @@ def about():
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
-    add_homoglyphs = False
+    add_homoglyphs = True
     
     user_input = request.form['chatbotInput']
 
@@ -93,8 +93,10 @@ def chatbot():
     output_tokens = output_tokens[:,tokenized_input["input_ids"].shape[-1]:]
     output_text = llm_tokenizer.batch_decode(output_tokens, skip_special_tokens=True)[0]
 
+    # print(wm_output_text)
     if add_homoglyphs:
         wm_output_text = text_encoder(wm_output_text)[0]
+        # print(wm_output_text)
     
     return render_template('chatbot_response.html', chatbot_response=output_text, chatbot_response_watermarked=wm_output_text)
 
@@ -213,7 +215,7 @@ def upload_code_file():
 # Detecting text manually typed in the box
 @app.route('/detect_text', methods=['POST'])
 def detect_text():
-    remove_homoglyphs = False
+    remove_homoglyphs = True
 
     encoded_text_input = request.form['detect']
 
@@ -222,7 +224,7 @@ def detect_text():
     homoglyph_proportion = homoglyph_detection(encoded_text_input)[0]
     whitespace_proportion = homoglyph_detection(encoded_text_input)[1]
     homoglyph_list = homoglyph_detection(encoded_text_input)[2]
-    
+       
     # After they have been detected, remove the homoglyphs for the other watermark detector
     homoglyphs = list("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ")
     normal_characters = list("AaBegiKIMNnOPpqSsTuWwYyZ,;:!")
@@ -230,11 +232,14 @@ def detect_text():
 
     if remove_homoglyphs:
         homo_text = list(encoded_text_input)
-        for i in range(len(homo_text)):
+        for i in range(len(homo_text)-1, -1, -1):
             if homo_text[i] in list(homo2normal.keys()):
                 homo_text[i] = homo2normal[homo_text[i]]
+            if i%2 == 0:
+                homo_text.pop(i)
 
         encoded_text_input = ''.join(homo_text)   
+        # print(encoded_text_input)
 
     score_dict = watermark_detector.detect(encoded_text_input) # or any other text of interest to analyze
     
