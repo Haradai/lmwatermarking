@@ -21,7 +21,7 @@ def read_encoded_characters_from_code_file(file_path,output_path):
         whitespace = 0
 
         # homoglyphs
-        homoglyphs = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ"
+        homoglyphs = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ"
 
         # read all lines in code
         lines = file.readlines()

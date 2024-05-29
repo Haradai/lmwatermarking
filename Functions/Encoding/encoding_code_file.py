@@ -28,8 +28,8 @@ def encode_code_file(source_path, dest_path):
             with open(dest_path, 'w', encoding='utf-8') as new_file:
                 # Initialize variables to store the current line and lines of code
                 current_line = ''
-                ref_dict = {char: index for index, char in enumerate("AaBegiKIMNnOPpqSsTUWwYy,;:!'")}
-                encoding_dict = {char: index for index, char in enumerate("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ")}
+                ref_dict = {char: index for index, char in enumerate("AaBegiKIMNnOPpqSsTUWwYyZ,;:!'")}
+                encoding_dict = {char: index for index, char in enumerate("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ")}
 
                 # encoding alphabet & punctuation
                 invert_ref_dict = {value: key for key, value in ref_dict.items()}

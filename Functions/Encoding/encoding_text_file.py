@@ -45,8 +45,8 @@ def write_words_to_word_file_with_paragraphs(paragraphs, output_file_path):
 
                 new_word = []
                 # encoding alphabet & punctuation
-                ref_dict = {char: index for index, char in enumerate("AaBegiKIMNnOPpqSsTUWwYy,;:!'")}
-                encoding_dict = {char: index for index, char in enumerate("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ")}
+                ref_dict = {char: index for index, char in enumerate("AaBegiKIMNnOPpqSsTUWwYyZ,;:!'")}
+                encoding_dict = {char: index for index, char in enumerate("АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ")}
                  
                 invert_ref_dict = {value: key for key, value in ref_dict.items()}
                 invert_encoding_dict = {value: key for key, value in encoding_dict.items()}

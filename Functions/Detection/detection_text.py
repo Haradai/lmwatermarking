@@ -1,7 +1,7 @@
 # Detection of homoglyphs in manually input text
 def homoglyph_detection(encoded_text_input):
     homoglyphs = []
-    homoglyph_list = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ"
+    homoglyph_list = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ"
 
     whitespace_character = "\u200B"  # Four-Per-Em Space character
 
@@ -39,7 +39,7 @@ def homoglyph_detection(encoded_text_input):
 
 # Flagging homoglyphs in printed output 
 def flagged_string_with_html(input):
-    flagged_characters = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥу‚;꞉ǃʾ"  # Add or remove flagged characters here as needed
+    flagged_characters = "АаВеցіΚӏΜΝոΟΡрԛЅѕΤՍԜԝΥуΖ‚;꞉ǃʾ"  # Add or remove flagged characters here as needed
     original_string = input
     flagged_string = original_string
 
