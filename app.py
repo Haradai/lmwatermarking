@@ -218,6 +218,8 @@ def detect_text():
     homoglyph_list = homoglyph_detection(encoded_text_input)[2]
     
     score_dict = watermark_detector.detect(encoded_text_input) # or any other text of interest to analyze
+    if score_dict['prediction'] == False:
+        score_dict['confidence'] = 0
 
     # Detecting and returning the details of homoglyphs
     return render_template(use_form, text_input_with_flags = text_input_with_flags,
