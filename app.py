@@ -213,6 +213,8 @@ def upload_code_file():
 # Detecting text manually typed in the box
 @app.route('/detect_text', methods=['POST'])
 def detect_text():
+    remove_homoglyphs = False
+
     encoded_text_input = request.form['detect']
 
     text_input_with_flags = flagged_string_with_html(encoded_text_input)
@@ -226,12 +228,13 @@ def detect_text():
     normal_characters = list("AaBegiKIMNnOPpqSsTuWwYy,;:!")
     homo2normal = {homo:normal for homo, normal in zip(homoglyphs, normal_characters)}
 
-    # homo_text = list(encoded_text_input)
-    # for i in range(len(homo_text)):
-    #     if homo_text[i] in list(homo2normal.keys()):
-    #         homo_text[i] = homo2normal[homo_text[i]]
+    if remove_homoglyphs:
+        homo_text = list(encoded_text_input)
+        for i in range(len(homo_text)):
+            if homo_text[i] in list(homo2normal.keys()):
+                homo_text[i] = homo2normal[homo_text[i]]
 
-    # encoded_text_input = ''.join(homo_text)   
+    encoded_text_input = ''.join(homo_text)   
 
     score_dict = watermark_detector.detect(encoded_text_input) # or any other text of interest to analyze
     
